@@ -1,14 +1,30 @@
-//package com.radchenko.restapi.service;
-//
-//import com.radchenko.restapi.repository.PlayerRepository;
-//import org.springframework.stereotype.Service;
-//
-//@Service
-//public class PlayerService {
-//
-//    private final PlayerRepository playerRepository;
-//
-//    public PlayerService(PlayerRepository playerRepository) {
-//        this.playerRepository = playerRepository;
-//    }
-//}
+package com.radchenko.restapi.service;
+
+import com.radchenko.restapi.entity.Player;
+import com.radchenko.restapi.repository.PlayerRepository;
+import com.radchenko.restapi.ui.response.PlayerDto;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class PlayerService {
+
+    private final PlayerRepository playerRepository;
+    private final ModelMapper modelMapper;
+
+    public PlayerService(PlayerRepository playerRepository, ModelMapper modelMapper) {
+        this.playerRepository = playerRepository;
+        this.modelMapper = modelMapper;
+    }
+
+    public List<PlayerDto> getAll() {
+        List<Player> players = playerRepository.findAll();
+
+        return players.stream()
+                .map(p -> modelMapper.map(p, PlayerDto.class))
+                .collect(Collectors.toList());
+    }
+}

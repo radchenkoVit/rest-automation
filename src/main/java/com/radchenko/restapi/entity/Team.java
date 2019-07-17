@@ -32,9 +32,9 @@ public class Team {
     @Column(name = "team_name")
     private String name;
 
-    @Setter(AccessLevel.PRIVATE)
-    @OneToMany(mappedBy = "team", fetch = FetchType.LAZY)
-    private List<Player> players = new ArrayList<>();
+//    @Setter(AccessLevel.PRIVATE)
+//    @OneToMany(mappedBy = "team", fetch = FetchType.LAZY)
+//    private List<Player> players = new ArrayList<>();
 
 //    //TODO: find out why is not working setter?
 //    public void addPlayer(Player player) {
