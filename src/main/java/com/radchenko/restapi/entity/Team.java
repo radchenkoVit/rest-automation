@@ -22,7 +22,7 @@ import java.util.List;
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @Entity
-@Table(name = "Teams")
+@Table(name = "teams")
 public class Team {
 
     @Id

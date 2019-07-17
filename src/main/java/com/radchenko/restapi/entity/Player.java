@@ -19,7 +19,7 @@ import javax.persistence.Table;
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @Entity
-@Table(name = "Players")
+@Table(name = "players")
 public class Player {
 
     @Id
