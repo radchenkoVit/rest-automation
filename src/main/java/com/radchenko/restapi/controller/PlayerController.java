@@ -20,7 +20,6 @@ public class PlayerController {
         this.playerService = playerService;
     }
 
-
     @GetMapping
     public List<PlayerDto> getAll() {
         return playerService.getAll();

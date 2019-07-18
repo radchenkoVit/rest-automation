@@ -13,18 +13,18 @@ import java.util.stream.Collectors;
 public class PlayerService {
 
     private final PlayerRepository playerRepository;
-    private final ModelMapper modelMapper;
+    private final ModelMapper mapper;
 
-    public PlayerService(PlayerRepository playerRepository, ModelMapper modelMapper) {
+    public PlayerService(PlayerRepository playerRepository, ModelMapper mapper) {
         this.playerRepository = playerRepository;
-        this.modelMapper = modelMapper;
+        this.mapper = mapper;
     }
 
     public List<PlayerDto> getAll() {
         List<Player> players = playerRepository.findAll();
 
         return players.stream()
-                .map(p -> modelMapper.map(p, PlayerDto.class))
+                .map(p -> mapper.map(p, PlayerDto.class))
                 .collect(Collectors.toList());
     }
 }
