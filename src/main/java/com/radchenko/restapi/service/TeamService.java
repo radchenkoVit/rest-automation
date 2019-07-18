@@ -19,7 +19,8 @@ public class TeamService {
     }
 
     public List<TeamDto> getAll() {
-        return teamRepository.findAll().stream()
+        return teamRepository.findAll()
+                .stream()
                 .map(t -> modelMapper.map(t, TeamDto.class))
                 .collect(Collectors.toList());
     }
