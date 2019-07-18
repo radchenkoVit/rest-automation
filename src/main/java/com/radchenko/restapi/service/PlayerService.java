@@ -1,13 +1,17 @@
 package com.radchenko.restapi.service;
 
 import com.radchenko.restapi.entity.Player;
+import com.radchenko.restapi.exception.EntityNotFoundException;
 import com.radchenko.restapi.repository.PlayerRepository;
 import com.radchenko.restapi.ui.response.PlayerDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 @Service
 public class PlayerService {
@@ -26,5 +30,12 @@ public class PlayerService {
         return players.stream()
                 .map(p -> mapper.map(p, PlayerDto.class))
                 .collect(Collectors.toList());
+    }
+
+    public PlayerDto findByName(String name) {
+        Optional<Player> player = playerRepository.findByFullName(name);
+
+        return player.map(p -> mapper.map(p, PlayerDto.class))
+                .orElseThrow(() -> new EntityNotFoundException(format("Player with name: [%s] not found", name)));
     }
 }
