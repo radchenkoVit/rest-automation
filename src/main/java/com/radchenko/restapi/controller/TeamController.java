@@ -1,5 +1,6 @@
 package com.radchenko.restapi.controller;
 
+import com.radchenko.restapi.exception.InvalidRequestParametersException;
 import com.radchenko.restapi.service.TeamService;
 import com.radchenko.restapi.ui.response.TeamDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+
+import static java.util.Collections.singletonList;
+import static org.springframework.util.StringUtils.isEmpty;
 
 @RequestMapping("/v1/team")
 @RestController
@@ -32,15 +36,19 @@ public class TeamController {
         return teamService.findById(id);
     }
 
-    //TODO: how to razlulit eto
-    //TODO: add exception handler --> response entity, bla bla
+    //TODO: think is it good?
     @GetMapping(path = "/find")
-    public TeamDto findByName(@RequestParam(name = "name", required = false) String name) {
-        return teamService.findByName(name);
-    }
+    public List<TeamDto> find(@RequestParam(name = "name", required = false) String name,
+                                    @RequestParam(name = "partOfName", required = false) String partOfName) {
 
-    @GetMapping(path = "/findByNames")
-    public List<TeamDto> findAllByNameContains(@RequestParam(name = "partOfName", required = false) String partOfName) {
-        return teamService.findAllByNameContains(partOfName);
+        if (!isEmpty(name)) {
+            return singletonList(teamService.findByName(name));
+        }
+
+        if (!isEmpty(partOfName)) {
+            return teamService.findAllByNameContains(partOfName);
+        }
+
+        throw new InvalidRequestParametersException("No known parameters is sent");
     }
 }
