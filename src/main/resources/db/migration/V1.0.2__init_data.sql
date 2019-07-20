@@ -1,4 +1,4 @@
-INSERT INTO teams VALUES (1, 'Arsenal'), (2, 'Liverpool'), (3, 'Manchester United');
+INSERT INTO teams VALUES (1, 'Arsenal', 1), (2, 'Liverpool', null), (3, 'Manchester United', null);
 INSERT INTO players VALUES
 (1, 'Petr Čech', 'GK', 1),
 (2, 'Héctor Bellerín', 'DF', 1),

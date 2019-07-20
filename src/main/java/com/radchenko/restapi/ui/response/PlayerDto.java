@@ -4,7 +4,7 @@ public class PlayerDto {
     private Long id;
     private String fullName;
     private String position;
-    private String teamName;
+    private String teamName;//Interesting lifehack ==> map from TeamDto one suitable field, etc. teamName, teamId --> could be
 
     public PlayerDto() {}
 
