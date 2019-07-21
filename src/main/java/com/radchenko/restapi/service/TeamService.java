@@ -5,7 +5,9 @@ import com.radchenko.restapi.exception.EntityNotFoundException;
 import com.radchenko.restapi.repository.TeamRepository;
 import com.radchenko.restapi.ui.response.TeamDto;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,11 +20,13 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final ModelMapper mapper;
 
+    @Autowired
     public TeamService(TeamRepository teamRepository, ModelMapper mapper) {
         this.teamRepository = teamRepository;
         this.mapper = mapper;
     }
 
+    @Transactional(readOnly = true)
     public List<TeamDto> getAll() {
         return teamRepository.findAll()
                 .stream()
@@ -30,6 +34,7 @@ public class TeamService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public TeamDto findById(Long id) {
         Optional<Team> team = teamRepository.findById(id);
 
@@ -37,6 +42,7 @@ public class TeamService {
                 .orElseThrow(() -> new EntityNotFoundException(format("Team with id: %s not found", id)));
     }
 
+    @Transactional(readOnly = true)
     public TeamDto findByName(String name) {
         Optional<Team> team = teamRepository.findTeamByName(name.trim());
 
@@ -44,6 +50,7 @@ public class TeamService {
                 .orElseThrow(() -> new EntityNotFoundException(format("Team with name: %s not found", name)));
     }
 
+    @Transactional(readOnly = true)
     public List<TeamDto> findAllByNameContains(String partOfName) {
         List<Team> teams = teamRepository.findAllByNameContains(partOfName);
 
