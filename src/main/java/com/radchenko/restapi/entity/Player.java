@@ -33,6 +33,7 @@ public class Player {
     private String position;
 
     @ManyToOne
+//    @ManyToOne(fetch = FetchType.LAZY) just an variant of implementation
     @JoinColumn(name = "team_id")
     private Team team;
 }
