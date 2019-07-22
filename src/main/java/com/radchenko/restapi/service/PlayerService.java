@@ -1,8 +1,11 @@
 package com.radchenko.restapi.service;
 
 import com.radchenko.restapi.entity.Player;
+import com.radchenko.restapi.entity.Team;
 import com.radchenko.restapi.exception.EntityNotFoundException;
+import com.radchenko.restapi.exception.InvalidRequestParametersException;
 import com.radchenko.restapi.repository.PlayerRepository;
+import com.radchenko.restapi.repository.TeamRepository;
 import com.radchenko.restapi.ui.response.LazyPlayerDto;
 import com.radchenko.restapi.ui.response.PlayerDto;
 import org.modelmapper.ModelMapper;
@@ -20,12 +23,14 @@ import static java.lang.String.format;
 public class PlayerService {
 
     private final PlayerRepository playerRepository;
+    private final TeamRepository teamRepository;
     private final ModelMapper mapper;
 
     @Autowired
-    public PlayerService(PlayerRepository playerRepository, ModelMapper mapper) {
+    public PlayerService(PlayerRepository playerRepository, ModelMapper mapper, TeamRepository teamRepository) {
         this.playerRepository = playerRepository;
         this.mapper = mapper;
+        this.teamRepository = teamRepository;
     }
 
     @Transactional(readOnly = true)
@@ -74,5 +79,78 @@ public class PlayerService {
 
         return player.map(p -> mapper.map(p, PlayerDto.class))
                 .orElseThrow(() -> new EntityNotFoundException(format("Player with name: [%s] not found", name)));
+    }
+
+    @Transactional(readOnly = true)
+    public PlayerDto findOne(Long id) {
+        Optional<Player> player = playerRepository.findById(id);
+
+        return player
+                .map(p -> mapper.map(p, PlayerDto.class))
+                .orElseThrow(() -> new EntityNotFoundException(format("Player with id: [%s] not found", id)));
+    }
+
+    @Transactional
+    public PlayerDto addPlayer(PlayerDto playerDto) {
+        if (playerDto.getId() != null) {
+            throw new InvalidRequestParametersException("Player should not have id field");
+        }
+
+        Player toSavePlayer = mapper.map(playerDto, Player.class);
+        Player returnPlayer = playerRepository.save(toSavePlayer);
+
+        return mapper.map(returnPlayer, PlayerDto.class);
+    }
+
+    @Transactional
+    public void assignPlayerToTeam(Long playerId, Long teamId) {
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new EntityNotFoundException(format("Player with id: %s not found", playerId)));
+
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new EntityNotFoundException(format("Team with id: %s not found", teamId)));
+
+        player.setTeam(team);
+    }
+
+    //TODO: return a dto?
+    @Transactional
+    public void updatePlayer(PlayerDto playerDto) {
+        if (playerDto.getId() == null) {
+            throw new InvalidRequestParametersException("Player id field could  not be empty");
+        }
+        if (!playerRepository.existsById(playerDto.getId())) {
+            throw new EntityNotFoundException(format("Player with id: %s not found", playerDto.getId()));
+        }
+
+//        Optional<Player> player = playerRepository.findById(playerDto.getId());
+        //TODO: reset data from dto or just save a new Player From PlayerDto
+        Player toSavePlayer = mapper.map(playerDto, Player.class);
+        playerRepository.save(toSavePlayer);
+    }
+
+    @Transactional
+    public void updatePlayer(Long playerId, PlayerDto playerDto) {
+        if (playerDto.getId() == null) {
+            throw new InvalidRequestParametersException("Player id field could  not be empty");
+        }
+
+        if (!playerId.equals(playerDto.getId())) {
+            throw new InvalidRequestParametersException("Different id's value");
+        }
+
+        if (!playerRepository.existsById(playerDto.getId())) {
+            throw new EntityNotFoundException(format("Player with id: %s not found", playerDto.getId()));
+        }
+
+//        Optional<Player> player = playerRepository.findById(playerDto.getId());
+        //TODO: reset data from dto or just save a new Player From PlayerDto
+        Player toSavePlayer = mapper.map(playerDto, Player.class);
+        playerRepository.save(toSavePlayer);
+    }
+
+    @Transactional
+    public void removePlayer(Long playerId) {
+        playerRepository.deleteById(playerId);
     }
 }
