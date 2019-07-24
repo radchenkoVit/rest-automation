@@ -2,8 +2,11 @@ package com.radchenko.restapi.controller;
 
 import com.radchenko.restapi.exception.InvalidRequestParametersException;
 import com.radchenko.restapi.service.TeamService;
+import com.radchenko.restapi.ui.response.PlayerDto;
 import com.radchenko.restapi.ui.response.TeamDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,28 +30,33 @@ public class TeamController {
     }
 
     @GetMapping
-    public List<TeamDto> getAll() {
-        return teamService.getAll();
+    public ResponseEntity<List<TeamDto>> getAll() {
+        return new ResponseEntity<>(teamService.getAll(), HttpStatus.OK);
     }
 
     @GetMapping(path = "/{id}")
-    public TeamDto findById(@PathVariable Long id) {
-        return teamService.findById(id);
+    public ResponseEntity<TeamDto> findById(@PathVariable Long id) {
+        return new ResponseEntity<>(teamService.findById(id), HttpStatus.OK);
     }
 
     //TODO: think is it good?
     @GetMapping(path = "/find")
-    public List<TeamDto> find(@RequestParam(name = "name", required = false) String name,
+    public ResponseEntity<List<TeamDto>> find(@RequestParam(name = "name", required = false) String name,
                                     @RequestParam(name = "partOfName", required = false) String partOfName) {
 
         if (!isEmpty(name)) {
-            return singletonList(teamService.findByName(name));
+            return new ResponseEntity<>(singletonList(teamService.findByName(name)), HttpStatus.OK);
         }
 
         if (!isEmpty(partOfName)) {
-            return teamService.findAllByNameContains(partOfName);
+            return new ResponseEntity<>(teamService.findAllByNameContains(partOfName), HttpStatus.OK);
         }
 
         throw new InvalidRequestParametersException("No known parameters is sent");
+    }
+
+    @GetMapping(path = "/{teamId}/captain")
+    public ResponseEntity<PlayerDto> getCaptain(@PathVariable Long teamId) {
+        return new ResponseEntity<>(teamService.getCaptain(teamId), HttpStatus.OK);
     }
 }
