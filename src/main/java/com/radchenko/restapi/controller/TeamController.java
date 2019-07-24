@@ -68,4 +68,28 @@ public class TeamController {
     public ResponseEntity<TeamDto> createTeam(@RequestBody TeamDto teamDto) {
         return new ResponseEntity<>(teamService.addTeam(teamDto), HttpStatus.CREATED);
     }
+
+    @DeleteMapping(path = "/{teamId}")
+    public ResponseEntity deleteTeam(@PathVariable Long teamId) {
+        teamService.removeTeam(teamId);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping(path = "/{teamId}/assign/{playerId}/captain")
+    public ResponseEntity assignCaptain(@PathVariable Long teamId, @PathVariable Long playerId) {
+        teamService.assignCaptain(teamId, playerId);
+        return new ResponseEntity(HttpStatus.ACCEPTED);
+    }
+
+    @PutMapping(path = "/{teamId}/assign/{playerId}")
+    public ResponseEntity assignPlayer(@PathVariable Long teamId, @PathVariable Long playerId) {
+        teamService.assignPlayer(teamId, playerId);
+        return new ResponseEntity(HttpStatus.ACCEPTED);
+    }
+
+    @PutMapping(path = "/{teamId}/add/player/{playerId}")
+    public ResponseEntity addPlayer(@PathVariable Long teamId, @PathVariable Long playerId) {
+        teamService.addPlayer(teamId, playerId);
+        return new ResponseEntity(HttpStatus.ACCEPTED);
+    }
 }

@@ -39,9 +39,8 @@ public class Team {
     @OneToMany(mappedBy = "team", fetch = FetchType.LAZY)
     private List<Player> players = new ArrayList<>();
 
-//    //TODO: find out why is not working setter?
-//    public void addPlayer(Player player) {
-//        players.add(player);
-//        player.setTeam(this);
-//    }
+    public void addPlayer(Player player) {
+        players.add(player);
+        player.setTeam(this);
+    }
 }

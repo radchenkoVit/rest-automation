@@ -1,5 +1,6 @@
 package com.radchenko.restapi.service;
 
+import com.radchenko.restapi.entity.Player;
 import com.radchenko.restapi.entity.Team;
 import com.radchenko.restapi.exception.EntityNotFoundException;
 import com.radchenko.restapi.repository.PlayerRepository;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -78,7 +80,7 @@ public class TeamService {
         return playerRepository
                 .findById(teamId)
                 .map(p -> mapper.map(p, PlayerDto.class))
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Captain with id: [%s] not found", captainId)));
+                .orElseThrow(() -> new EntityNotFoundException(format("Captain with id: [%s] not found", captainId)));
     }
 
     @Transactional
@@ -91,5 +93,53 @@ public class TeamService {
         teamRepository.save(team);
 
         return mapper.map(team, TeamDto.class);
+    }
+
+    @Transactional
+    public void removeTeam(Long teamId) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new EntityNotFoundException(format("Team with id: [%s] not found", teamId)));
+        team.getPlayers().forEach(player -> player.setTeam(null));//TODO: could create bug when team is deleted but players is not unassigned from tean
+        teamRepository.deleteById(teamId);
+    }
+
+    @Transactional
+    public void assignCaptain(Long teamId, Long captainId) {
+        Player captainPlayer = playerRepository.findById(teamId)
+                .orElseThrow(() -> new EntityNotFoundException(format("Captain with id: [%s] not found", captainId)));
+
+        Team newTeam = teamRepository.findById(teamId)
+                .orElseThrow(() -> new EntityNotFoundException(format("Team with id: [%s] not found", teamId)));
+
+        if (captainPlayer.getTeam() != null && !Objects.equals(captainPlayer.getTeam().getId(), teamId)) {
+            Team oldTeam = captainPlayer.getTeam();
+            oldTeam.setCaptainId(null);
+
+            captainPlayer.setTeam(newTeam);//TODO:try to create bug where captain could be on two teams????
+            newTeam.addPlayer(captainPlayer);
+        }
+
+        newTeam.setCaptainId(captainPlayer.getId());
+    }
+
+    @Transactional
+    public void assignPlayer(Long teamId, Long playerId) {
+        Player player = playerRepository.findById(teamId)
+                .orElseThrow(() -> new EntityNotFoundException(format("Player with id: [%s] not found", playerId)));
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new EntityNotFoundException(format("Team with id: [%s] not found", teamId)));
+
+        player.setTeam(team);//TODO: check if it works correct
+        team.addPlayer(player);
+    }
+
+    @Transactional//TODO: check if it works correct
+    public void addPlayer(Long teamId, Long playerId) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new EntityNotFoundException(format("Team with id: [%s] not found", teamId)));//TODO: move to private method
+        Player player = playerRepository.findById(teamId)
+                .orElseThrow(() -> new EntityNotFoundException(format("Player with id: [%s] not found", playerId)));
+
+        team.addPlayer(player);
     }
 }
