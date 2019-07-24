@@ -59,7 +59,7 @@ public class PlayerController {
         return new ResponseEntity<>(playerService.addPlayer(playerDto), HttpStatus.CREATED);
     }
 
-    @PutMapping(path = "/{playerId}")
+    @PutMapping(path = "/{playerId}/assign")
     public ResponseEntity<Void> assignTeam(@PathVariable Long playerId, @RequestParam Long teamId) {
         playerService.assignPlayerToTeam(playerId, teamId);
 
