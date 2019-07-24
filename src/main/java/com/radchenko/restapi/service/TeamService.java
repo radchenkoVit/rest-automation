@@ -63,6 +63,7 @@ public class TeamService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public PlayerDto getCaptain(Long teamId) {
         Team team = teamRepository
                 .findById(teamId)
@@ -78,5 +79,17 @@ public class TeamService {
                 .findById(teamId)
                 .map(p -> mapper.map(p, PlayerDto.class))
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Captain with id: [%s] not found", captainId)));
+    }
+
+    @Transactional
+    //TODO:	add new team with id's of players which already exists
+    //for current  case it's bug that it's create/update existing team
+    public TeamDto addTeam(TeamDto teamDto) {
+        //no checking
+        //todo: two times with the same id --> error
+        Team team = mapper.map(teamDto, Team.class);
+        teamRepository.save(team);
+
+        return mapper.map(team, TeamDto.class);
     }
 }
