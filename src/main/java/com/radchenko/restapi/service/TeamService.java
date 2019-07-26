@@ -67,13 +67,10 @@ public class TeamService {
 
     @Transactional(readOnly = true)
     public PlayerDto getCaptain(Long teamId) {
-        Team team = teamRepository
-                .findById(teamId)
-                .orElseThrow(() -> new EntityNotFoundException(format("Team with id: [%s] not found", teamId)));
-
+        Team team = findTeam(teamId);
         Long captainId = team.getCaptainId();
 
-        if (captainId == null) {//TODO: left it's to show standart error message and message that was caught
+        if (captainId == null) {//TODO: left it's to show standard error message and message that was caught
             throw new RuntimeException("No captain assigned to the team");
         }
 
@@ -97,19 +94,15 @@ public class TeamService {
 
     @Transactional
     public void removeTeam(Long teamId) {
-        Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new EntityNotFoundException(format("Team with id: [%s] not found", teamId)));
+        Team team = findTeam(teamId);
         team.getPlayers().forEach(player -> player.setTeam(null));//TODO: could create bug when team is deleted but players is not unassigned from tean
         teamRepository.deleteById(teamId);
     }
 
     @Transactional
     public void assignCaptain(Long teamId, Long captainId) {
-        Player captainPlayer = playerRepository.findById(teamId)
-                .orElseThrow(() -> new EntityNotFoundException(format("Captain with id: [%s] not found", captainId)));
-
-        Team newTeam = teamRepository.findById(teamId)
-                .orElseThrow(() -> new EntityNotFoundException(format("Team with id: [%s] not found", teamId)));
+        Player captainPlayer = findCaptain(captainId);
+        Team newTeam = findTeam(teamId);
 
         if (captainPlayer.getTeam() != null && !Objects.equals(captainPlayer.getTeam().getId(), teamId)) {
             Team oldTeam = captainPlayer.getTeam();
@@ -124,10 +117,8 @@ public class TeamService {
 
     @Transactional
     public void assignPlayer(Long teamId, Long playerId) {
-        Player player = playerRepository.findById(teamId)
-                .orElseThrow(() -> new EntityNotFoundException(format("Player with id: [%s] not found", playerId)));
-        Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new EntityNotFoundException(format("Team with id: [%s] not found", teamId)));
+        Player player = findPlayer(playerId);
+        Team team = findTeam(teamId);
 
         player.setTeam(team);//TODO: check if it works correct
         team.addPlayer(player);
@@ -135,11 +126,28 @@ public class TeamService {
 
     @Transactional//TODO: check if it works correct
     public void addPlayer(Long teamId, Long playerId) {
-        Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new EntityNotFoundException(format("Team with id: [%s] not found", teamId)));//TODO: move to private method
-        Player player = playerRepository.findById(teamId)
-                .orElseThrow(() -> new EntityNotFoundException(format("Player with id: [%s] not found", playerId)));
+        Team team = findTeam(teamId);
+        Player player = findPlayer(playerId);
 
         team.addPlayer(player);
+    }
+
+
+    private Team findTeam(Long teamId) {
+        return teamRepository.findById(teamId)
+                .orElseThrow(() -> new EntityNotFoundException(format("Team with id: [%s] not found", teamId)));
+    }
+
+    private Player findCaptain(Long playerId) {
+        return findPlayer(playerId,"Captain with id: [%s] not found");
+    }
+
+    private Player findPlayer(Long playerId) {
+        return findPlayer(playerId,"Player with id: [%s] not found");
+    }
+
+    private Player findPlayer(Long playerId, String messagePattern) {
+        return playerRepository.findById(playerId)
+                .orElseThrow(() -> new EntityNotFoundException(format(messagePattern, playerId)));
     }
 }
