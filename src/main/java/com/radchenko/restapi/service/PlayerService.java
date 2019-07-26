@@ -104,11 +104,8 @@ public class PlayerService {
 
     @Transactional
     public void assignPlayerToTeam(Long playerId, Long teamId) {
-        Player player = playerRepository.findById(playerId)
-                .orElseThrow(() -> new EntityNotFoundException(format("Player with id: %s not found", playerId)));
-
-        Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new EntityNotFoundException(format("Team with id: %s not found", teamId)));
+        Player player = findPlayer(playerId);
+        Team team = findTeam(teamId);
 
         player.setTeam(team);
     }
@@ -152,5 +149,15 @@ public class PlayerService {
     @Transactional
     public void removePlayer(Long playerId) {
         playerRepository.deleteById(playerId);
+    }
+
+    private Team findTeam(Long teamId) {
+        return teamRepository.findById(teamId)
+                .orElseThrow(() -> new EntityNotFoundException(format("Team with id: [%s] not found", teamId)));
+    }
+
+    private Player findPlayer(Long playerId) {
+        return playerRepository.findById(playerId)
+                .orElseThrow(() -> new EntityNotFoundException(format("Player with id: [%s] not found", playerId)));
     }
 }
